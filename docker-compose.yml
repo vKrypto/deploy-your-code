@@ -45,10 +45,18 @@ services:
       - slave_db3
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -plant | grep :5432"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
 
   master_db:
     <<: *postgres-common
     container_name: master_db  # do not change the name, otherwise you might have to change other settings also
+    ports:
+      - "5432:5432"  # for master_db
     environment:
       <<: *postgres-environment
       SLAVE_CONTAINERS: "slave_db1,slave_db2,slave_db3" # for creating replica slot 
