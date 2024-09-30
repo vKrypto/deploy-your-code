@@ -14,6 +14,7 @@ chmod 600 /var/lib/postgresql/data/standby.signal
 
 # strart replica-sync
 bash -c "
+rm -rf /var/lib/postgresql/data/*
 until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot_${CONTAINER_NAME} --host=${MASTER_HOST} --port=${MASTER_PORT}
 do
 echo 'Waiting for primary to connect...'
