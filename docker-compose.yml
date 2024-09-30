@@ -103,7 +103,7 @@ services:
   # /api/express
   express_app:
     build:
-      context: ./apps/express
+      context: ./apps/expressjs
       dockerfile: Dockerfile
     container_name: express_app
     command: pm2-runtime start app.js --name "express-app"
