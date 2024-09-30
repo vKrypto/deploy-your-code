@@ -31,6 +31,21 @@ x-postgres-common:
 services:
 
   # Databases
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "5423:5432"  # HAProxy
+    volumes:
+      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - master_db
+      - slave_db1
+      - slave_db2
+      - slave_db3
+    networks:
+      - app_network
+
   master_db:
     <<: *postgres-common
     container_name: master_db  # do not change the name, otherwise you might have to change other settings also
@@ -44,6 +59,10 @@ services:
       - ./conf/master_postgres.conf:/etc/postgresql/custom_conf.conf
       - ./conf/master_init.sh:/docker-entrypoint-initdb.d/master_init.sh
       # - ./conf/master_pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    networks:
+      app_network:
+        aliases:
+          - master_db
 
   slave_db1:
     <<: *postgres-common
@@ -58,7 +77,7 @@ services:
       # - ./conf/salve_pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     depends_on:
       - master_db
-  
+
   slave_db2:
     <<: *postgres-common
     container_name: slave_db2
@@ -72,7 +91,7 @@ services:
       # - ./conf/salve_pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     depends_on:
       - master_db
-  
+
   slave_db3:
     <<: *postgres-common
     container_name: slave_db3
@@ -86,7 +105,7 @@ services:
       # - ./conf/salve_pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     depends_on:
       - master_db
-  
+
   # /api/django
   django_app:
     build:
